@@ -1007,6 +1007,30 @@ def run_scheduler_process(
     kill_itself_when_parent_died()
     configure_logger(server_args)
     globally_suppress_loggers()
+
+    # --- DEBUG: force deterministic algorithms for run-to-run reproducibility ---
+    # When JOYO_V2_DETERMINISTIC is set, switch CUDA ops (notably index_add_ /
+    # scatter_add_ used in MoE combine) to their deterministic implementations so
+    # two runs with identical inputs produce bit-exact output. Verification-only:
+    # the deterministic index_add_ is slower; leave unset in production.
+    import os as _os
+
+    if _os.environ.get("JOYO_V2_DETERMINISTIC", ""):
+        _os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+        torch.use_deterministic_algorithms(True, warn_only=True)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        import sys as _sys
+
+        print(
+            f"[JOYO_V2_DETERMINISTIC] Worker rank={rank}: "
+            f"use_deterministic_algorithms={torch.are_deterministic_algorithms_enabled()} "
+            f"cudnn.deterministic={torch.backends.cudnn.deterministic} "
+            f"CUBLAS_WORKSPACE_CONFIG={_os.environ.get('CUBLAS_WORKSPACE_CONFIG')}",
+            file=_sys.stderr,
+            flush=True,
+        )
+
     if current_platform.is_cuda():
         set_cuda_arch()
     elif current_platform.is_musa():

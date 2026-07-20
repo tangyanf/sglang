@@ -35,6 +35,7 @@ from sglang.multimodal_gen.configs.pipeline_configs import (
     HeliosMidConfig,
     HeliosT2VConfig,
     HunyuanConfig,
+    JoyOV2T2VConfig,
     LingBotWorldCausalDMDConfig,
     LingBotWorldV2CausalDMDConfig,
     WanI2V480PConfig,
@@ -126,6 +127,7 @@ from sglang.multimodal_gen.configs.sample.ideogram import (
     Ideogram4SamplingParams,
 )
 from sglang.multimodal_gen.configs.sample.joy_echo import JoyEchoSamplingParams
+from sglang.multimodal_gen.configs.sample.joyo_v2 import JoyOV2T2VSamplingParams
 from sglang.multimodal_gen.configs.sample.joy_image import (
     JoyImageEditSamplingParams,
 )
@@ -809,6 +811,16 @@ def _register_configs():
         pipeline_config_cls=FastWan2_1_T2V_480P_Config,
         hf_model_paths=[
             "FastVideo/FastWan2.1-T2V-1.3B-Diffusers",
+        ],
+    )
+    # JoyO V2
+    register_configs(
+        sampling_param_cls=JoyOV2T2VSamplingParams,
+        pipeline_config_cls=JoyOV2T2VConfig,
+        model_detectors=[
+            lambda hf_id: "joyov2pipeline" in hf_id.lower(),
+            lambda hf_id: "joyo-v2" in hf_id.lower(),
+            lambda hf_id: "joyo_v2" in hf_id.lower(),
         ],
     )
     # MOVA

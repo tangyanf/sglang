@@ -7,6 +7,7 @@ from sglang.multimodal_gen.configs.models.vaes.stablediffusion3 import (
     StableDiffusion3VAEConfig,
 )
 from sglang.multimodal_gen.configs.models.vaes.wanvae import WanVAEConfig
+from sglang.multimodal_gen.configs.models.vaes.xvae import XVAEConfig
 
 __all__ = [
     "DacVAEConfig",
@@ -14,4 +15,5 @@ __all__ = [
     "StableDiffusion3VAEConfig",
     "WanVAEConfig",
     "Hunyuan3DVAEConfig",
+    "XVAEConfig",
 ]

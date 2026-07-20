@@ -208,7 +208,15 @@ class Qwen3VLTextAttention(nn.Module):
         super().__init__()
         self.config = config
         self.layer_idx = layer_idx
-        self.head_dim = config.hidden_size // config.num_attention_heads
+        # Qwen3-VL text config carries head_dim as an independent field: it is
+        # NOT always hidden_size / num_attention_heads (e.g. hidden=5120,
+        # heads=64, head_dim=128 → q/k proj out = 8192, not 5120). Prefer the
+        # explicit value when present, keep the derived value as a fallback for
+        # older configs.
+        head_dim = getattr(config, "head_dim", None)
+        self.head_dim = int(head_dim) if head_dim else (
+            config.hidden_size // config.num_attention_heads
+        )
         self.total_num_heads = config.num_attention_heads
         self.total_num_key_value_heads = config.num_key_value_heads
         tp_size = _tp_world_size() if use_tensor_parallel else 1
